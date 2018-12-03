@@ -31,7 +31,7 @@ def train(env: gym.Env, policy_network, n_episodes: int, gamma: float, alpha: fl
         optim.step()
 
         if _i_episode % 100 == 0:
-            print(f'episode: {_i_episode}\taverage of last 100: {np.mean(scores[-100:])}')
+            print(f'episode: {_i_episode}\tlast 100 average: {np.mean(scores[-100:])}')
         if np.mean(scores[-100:]) > 195.:
             break
 
@@ -70,8 +70,7 @@ class Policy():
     def pd(self, state):
         state = torch.as_tensor(state, dtype=torch.float)
         logits = self.policy_network(state)
-        probs = F.softmax(logits, dim=-1)
-        return torch.distributions.Categorical(probs)
+        return torch.distributions.Categorical(logits=logits)
 
 
 class PolicyNetwork(nn.Module):

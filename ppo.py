@@ -24,10 +24,10 @@ def train(env: gym.Env, policy_network: nn.Module, n_episodes=1, t_max=1000, cli
             print(f'episode: {_i_episode}\tlast 100 score average: {last_100_score_average}')
 
         if last_100_score_average > 196.:
-            print(f'SOLVED: last 100 score average: {last_100_score_average} > 195.')
+            print(f'SOLVED at episode {_i_episode}: last 100 score average: {last_100_score_average} > 195.')
             break
 
-        gammas = np.vstack([gamma ** t for t in range(len(episode) - 1)])
+        gammas = gamma ** np.arange(len(episode) - 1)[:, np.newaxis]
         g = np.sum(gammas * rewards[1:])
 
         actions = torch.as_tensor(actions)

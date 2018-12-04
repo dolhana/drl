@@ -34,6 +34,12 @@ def train(env: gym.Env, policy_network, n_episodes: int, gamma: float, alpha: fl
         gs = (gammas * rewards[1:])[::-1].cumsum(axis=0)[::-1]
         gs = torch.as_tensor(gs.copy(), dtype=torch.float)
 
+        # reward normalization makes REINFORCE worse here.
+        # with reward normalization, REINFORCE doesn't seem to learn anything.
+        gs_mean = gs.mean()
+        gs_std = gs.std() + 1e-10
+        gs_normalized = (gs - gs_mean) / gs_std
+
         actions = np.vstack(actions[:-1])
 
         observations = np.array(observations)

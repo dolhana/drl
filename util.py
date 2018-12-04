@@ -33,7 +33,7 @@ class Policy():
 
     def log_prob(self, state, action):
         action = torch.as_tensor(action).squeeze(-1)
-        return self.pd(state).log_prob(action)
+        return self.pd(state).log_prob(action).unsqueeze(-1)
 
     def pd(self, state):
         state = torch.as_tensor(state, dtype=torch.float)

@@ -28,7 +28,10 @@ def train(env: gym.Env, policy_network: nn.Module, n_episodes=1, t_max=1000, cli
             break
 
         gammas = gamma ** np.arange(len(episode) - 1)[:, np.newaxis]
-        g = np.sum(gammas * rewards[1:])
+
+        # G for each time-step sums only the future rewards for credit assignment
+        gs = (gammas * rewards[1:])[::-1].cumsum(axis=0)[::-1]
+        gs = torch.as_tensor(gs.copy(), dtype=torch.float)
 
         actions = torch.as_tensor(actions)
         old_probs = policy.pd(observations[:-1]).probs.gather(dim=1, index=actions[:-1]).detach()
@@ -38,10 +41,10 @@ def train(env: gym.Env, policy_network: nn.Module, n_episodes=1, t_max=1000, cli
             new_probs = policy.pd(observations[:-1]).probs.gather(dim=1, index=actions[:-1])
             prop_ratio = new_probs / old_probs
             clipped_prop_ratio = prop_ratio.clamp(1. - clip_epsilon, 1. + clip_epsilon)
-            surrogate = torch.min(prop_ratio * g, clipped_prop_ratio * g).sum()
+            surrogate = torch.min(prop_ratio * gs, clipped_prop_ratio * gs).sum()
             loss = - surrogate
             optim.zero_grad()
             loss.backward()
             optim.step()
-        
+
     return policy, scores

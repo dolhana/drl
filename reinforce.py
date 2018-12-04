@@ -29,14 +29,16 @@ def train(env: gym.Env, policy_network, n_episodes: int, gamma: float, alpha: fl
             break
 
         gammas = gamma ** np.arange(len(rewards) - 1)[:, np.newaxis]
-        discounted_rewards = gammas * rewards[1:]
-        g = np.sum(discounted_rewards)
+
+        # g for each time-step sums the future rewards only for credit assignment
+        gs = (gammas * rewards[1:])[::-1].cumsum(axis=0)[::-1]
+        gs = torch.as_tensor(gs.copy(), dtype=torch.float)
 
         actions = np.vstack(actions[:-1])
 
         observations = np.array(observations)
         log_probs = policy.log_prob(observations[:-1], actions)
-        loss = - (log_probs * g).sum()
+        loss = - (log_probs * gs).sum()
         optim.zero_grad()
         loss.backward()
         optim.step()

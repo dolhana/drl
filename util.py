@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -23,6 +24,36 @@ def run_episode(env: gym.Env, policy, t_max: int = 1000):
     return episode
 
 
+class RunningStandardizer:
+    """Standardize using exponential moving average and variance
+
+    NOTE: the implementation is not mathmatically correct.
+
+    diff := x - mean
+    incr := alpha * diff
+    mean := mean + incr
+    variance := (1 - alpha) * (variance + diff * incr)
+
+    https://en.wikipedia.org/wiki/Moving_average#Exponentially_weighted_moving_variance_and_standard_deviation
+    http://people.ds.cam.ac.uk/fanf2/hermes/doc/antiforgery/stats.pdf
+    """
+    def __init__(self, alpha=1e-3):
+        self.alpha = alpha
+        self.mean = None
+        self.var = None
+
+    def __call__(self, xs):
+        if not isinstance(xs, np.ndarray):
+            xs = np.array(xs)
+        if self.mean is None:
+            self.mean = np.mean(xs)
+            self.var = np.var(xs)
+        else:
+            diff = xs - self.mean
+            incr = self.alpha ** np.arange(len(xs))[::-1] * diff
+            self.mean += incr
+            self.var = (1 - self.alpha) * (self.var + diff * incr)
+        return (xs - self.mean) / np.sqrt(self.var)
 
 class Policy():
     def __init__(self, policy_network):

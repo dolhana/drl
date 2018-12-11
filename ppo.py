@@ -7,14 +7,14 @@ import tqdm
 
 import util
 
-def train(env: gym.Env, policy_network: nn.Module, n_episodes=1, t_max=1000, clip_epsilon=0.2, gamma=1., alpha=1e-3):
+def train(run_one_episode: util.RunOneEpisodeFunc, policy_network: nn.Module, n_episodes=1, clip_epsilon=0.2, gamma=1., alpha=1e-3):
     policy = util.Policy(policy_network)
     optim = torch.optim.Adam(policy_network.parameters(), lr=alpha)
 
     scores = []
 
     for _i_episode in range(n_episodes):
-        episode = util.run_episode(env, policy, t_max=t_max)
+        episode = run_one_episode(policy)
         rewards, observations, actions = [np.vstack(x) for x in zip(*episode)]
 
         scores.append(np.sum(rewards))

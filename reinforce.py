@@ -9,13 +9,13 @@ import gym
 import util
 
 
-def train(env: gym.Env, policy_network, n_episodes: int, gamma: float, alpha: float =1e-3):
+def train(run_one_episode, policy_network, n_episodes: int, gamma: float, alpha: float =1e-3):
     policy = util.Policy(policy_network)
     optim = torch.optim.Adam(policy_network.parameters(), lr=alpha)
 
     scores = []
     for _i_episode in range(n_episodes):
-        episode = util.run_episode(env, policy)
+        episode = run_one_episode(policy)
         rewards, observations, actions = [np.vstack(x) for x in zip(*episode)]
 
         scores.append(np.sum(rewards))

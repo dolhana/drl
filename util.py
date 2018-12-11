@@ -1,10 +1,14 @@
+import typing as T
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import gym
 
-def run_episode(env: gym.Env, policy, t_max: int = 1000):
+
+RunOneEpisodeFunc = T.Callable[[T.Any], T.Tuple[float, T.Any, int]]
+
+def run_one_episode(env: gym.Env, policy, t_max: int = 1000):
     """Runs one episode and returns the trajectory.
     Returns:
       [(reward, observation, action)]
@@ -14,7 +18,7 @@ def run_episode(env: gym.Env, policy, t_max: int = 1000):
 
     episode = []
     for _ in range(t_max):
-        action = policy.action(observation).detach().cpu().numpy()
+        action = policy.action(observation)
         episode.append(([reward], observation, [action]))
         observation, reward, done, _ = env.step(action)
         if done:
@@ -60,7 +64,7 @@ class Policy():
         self.policy_network = policy_network
 
     def action(self, state):
-        return self.pd(state).sample()
+        return self.pd(state).sample().detach().cpu().numpy()
 
     def log_prob(self, state, action):
         action = torch.as_tensor(action).squeeze(-1)

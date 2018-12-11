@@ -53,10 +53,10 @@ def test_train_pong_1_episode():
     policy_network = pong.PolicyNetwork()
     _policy, _scores = ppo.train(run_one_episode, policy_network, n_episodes=1)
 
-def test_train_pong_long(n_episodes=1000, device=device, render=False, **kwargs):
+def test_train_pong_long(n_episodes=1000, batchnorm=False, device=device, render=False, **kwargs):
     env = gym.make('PongDeterministic-v4')
     run_one_episode = partial(pong.run_one_episode, env, render=render)
-    policy_network = pong.PolicyNetwork(device=device)
+    policy_network = pong.PolicyNetwork(batchnorm=batchnorm, device=device)
     _policy, _scores = ppo.train(run_one_episode, policy_network, n_episodes=n_episodes, **kwargs)
 
 def test_train_exp1():
@@ -70,3 +70,20 @@ def test_train_exp3():
 
 def test_train_exp4():
     test_train_pong_long(gamma=0.99, weight_decay=1e-4)
+
+def test_train_exp5():
+    test_train_pong_long(gamma=0.99, weight_decay=0, alpha=1e-4)
+
+def test_train_exp6():
+    test_train_pong_long(n_episodes=10000, gamma=0.99, weight_decay=0, alpha=1e-5)
+    # failed to learn
+    # last 100 episode score mean after 9900 episodes: -20.23
+
+def test_train_exp7():
+    test_train_pong_long(gamma=0.99, weight_decay=1e-6, alpha=1e-5)
+
+def test_train_exp8():
+    test_train_pong_long(n_episodes=10000, gamma=0.99, weight_decay=1e-6, alpha=1e-5, batchnorm=True)
+    # not effectively but learns something
+    # last 100 episode score mean after 9900 episodes: 2.16
+    # learning accelerated after 6900 episodes

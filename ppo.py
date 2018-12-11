@@ -17,6 +17,7 @@ def train(run_one_episode: util.RunOneEpisodeFunc, policy_network: nn.Module, n_
     with tqdm.trange(n_episodes, ncols=100) as pbar:
         pbar_update_interval = max(2, n_episodes // 50)
         for _i_episode in pbar:
+            policy_network.eval()
             episode = run_one_episode(policy)
             rewards, observations, actions = [np.vstack(x) for x in zip(*episode)]
 
@@ -50,6 +51,7 @@ def train(run_one_episode: util.RunOneEpisodeFunc, policy_network: nn.Module, n_
 
             # PPO reuses the sample trajectory multiple times
             for _ in range(3):
+                policy_network.train()
                 new_probs = policy.pd(observations[:-1]).probs.gather(dim=1, index=actions[:-1])
                 prop_ratio = new_probs / old_probs
                 clipped_prop_ratio = prop_ratio.clamp(1. - clip_epsilon, 1. + clip_epsilon)

@@ -12,26 +12,35 @@ class PolicyNetwork(nn.Module):
     """A policy network for PongDeterministic-v4
     """
 
-    def __init__(self, device=torch.device('cpu')):
+    def __init__(self, batchnorm=False, device=torch.device('cpu')):
         super(PolicyNetwork, self).__init__()
+        self.batchnorm = batchnorm
         self.device = device
 
-        # input: 80x80x2, output: 40x40x4
+        # input: 2x80x80, output: 8x40x40
         self.conv1 = nn.Conv2d(2, 8, kernel_size=5, stride=2, padding=2)
 
-        # input: 40x40x4, output: 20x20x8
+        # input: 8x40x40, output: 16x20x20
         self.conv2 = nn.Conv2d(8, 16, kernel_size=5, stride=2, padding=2)
 
-        self._fc_in_size = 20 * 20 * 16
+        self._fc_in_size = 16 * 20 * 20
 
         self.fc1 = nn.Linear(self._fc_in_size, 256)
         self.fc2 = nn.Linear(256, 2)
+
+        if self.batchnorm:
+            self.batchnorm1 = nn.BatchNorm2d(8)
+            self.batchnorm2 = nn.BatchNorm2d(16)
 
         self.to(self.device)
 
     def forward(self, x):
         x = F.relu(self.conv1(x))
+        if self.batchnorm:
+            x = self.batchnorm1(x)
         x = F.relu(self.conv2(x))
+        if self.batchnorm:
+            x = self.batchnorm2(x)
         x = x.view(-1, self._fc_in_size)
         x = F.relu(self.fc1(x))
         x = self.fc2(x)

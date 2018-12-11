@@ -83,7 +83,7 @@ def run_one_episode(env: gym.Env, policy: util.Policy, tmax=1000, render=False):
 
         # we take one action and skip game forward (0 = NOOP)
         frame0, r0, done, _ = env.step(action)
-        frame1, r1, done, _ = env.step(0)
+        frame1, r1, done, _ = env.step(action)
         if render:
             env.render()
 
@@ -125,5 +125,8 @@ def examine_environment():
 
 if __name__ == '__main__':
     # examine_environment()
+    # import test_reinforce
+    # test_reinforce.test_train_pong_3k_episode(n_episodes=100, render=True)
+
     import test_ppo
-    test_ppo.test_train_pong_3k_episode(render=True)
+    test_ppo.test_train_pong_3k_episode(n_episodes=100, render=True)

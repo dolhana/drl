@@ -32,8 +32,8 @@ def test_train_pong_1_episode():
     policy_network = pong.PolicyNetwork()
     _policy, _scores = reinforce.train(run_one_episode, policy_network, n_episodes=1)
 
-def test_train_pong_3k_episode(n_episodes=3000, render=False):
+def test_train_pong_3k_episode(n_episodes=3000, render=False, **kwargs):
     env = gym.make('PongDeterministic-v4')
     run_one_episode = partial(pong.run_one_episode, env, render=render)
     policy_network = pong.PolicyNetwork()
-    _policy, _scores = reinforce.train(run_one_episode, policy_network, n_episodes=n_episodes)
+    _policy, _scores = reinforce.train(run_one_episode, policy_network, n_episodes=n_episodes, **kwargs)

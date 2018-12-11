@@ -9,9 +9,9 @@ import gym
 import util
 
 
-def train(run_one_episode, policy_network, n_episodes: int, gamma: float, alpha: float =1e-3):
+def train(run_one_episode, policy_network, n_episodes: int, gamma: float =1., alpha: float =1e-3, weight_decay=1e-2):
     policy = util.Policy(policy_network)
-    optim = torch.optim.Adam(policy_network.parameters(), lr=alpha)
+    optim = torch.optim.Adam(policy_network.parameters(), lr=alpha, weight_decay=weight_decay)
 
     scores = []
     for _i_episode in range(n_episodes):

@@ -54,3 +54,9 @@ def test_train_pong_long(n_episodes=1000, render=False, **kwargs):
     run_one_episode = partial(pong.run_one_episode, env, render=render)
     policy_network = pong.PolicyNetwork()
     _policy, _scores = ppo.train(run_one_episode, policy_network, n_episodes=n_episodes, **kwargs)
+
+def test_train_exp1():
+    test_train_pong_long()
+
+def test_train_exp2():
+    test_train_pong_long(gamma=0.99)

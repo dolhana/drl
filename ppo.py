@@ -7,7 +7,7 @@ import tqdm
 
 import util
 
-def train(run_one_episode: util.RunOneEpisodeFunc, policy_network: nn.Module, n_episodes=1, clip_epsilon=0.2, gamma=1., alpha=1e-3, weight_decay=1e-2, entropy_beta=1e-2):
+def train(run_one_episode: util.RunOneEpisodeFunc, policy_network: nn.Module, n_episodes=1, clip_epsilon=0.2, gamma=1., alpha=1e-3, weight_decay=1e-2, entropy_beta=1e-2, entropy_beta_discount_rate=0.995):
     policy = util.Policy(policy_network)
     optim = torch.optim.Adam(policy_network.parameters(), lr=alpha, weight_decay=weight_decay)
 
@@ -68,5 +68,7 @@ def train(run_one_episode: util.RunOneEpisodeFunc, policy_network: nn.Module, n_
                 optim.zero_grad()
                 loss.backward()
                 optim.step()
+
+                entropy_beta *= entropy_beta_discount_rate
 
     return policy, scores

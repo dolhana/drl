@@ -86,4 +86,7 @@ def test_train_exp8():
     test_train_pong_long(n_episodes=10000, gamma=0.99, weight_decay=1e-6, alpha=1e-5, batchnorm=True)
     # not effectively but learns something
     # last 100 episode score mean after 9900 episodes: 2.16
-    # learning accelerated after 6900 episodes
+    # learning accelerated after reaching -17.49 at 6900 episodes
+
+def test_train_exp9():
+    test_train_pong_long(n_episodes=10000, gamma=0.99, weight_decay=1e-6, alpha=1e-4, batchnorm=True)

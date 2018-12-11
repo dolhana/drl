@@ -18,10 +18,10 @@ class PolicyNetwork(nn.Module):
         self.device = device
 
         # input: 2x80x80, output: 8x40x40
-        self.conv1 = nn.Conv2d(2, 8, kernel_size=5, stride=2, padding=2)
+        self.conv1 = nn.Conv2d(2, 8, kernel_size=5, stride=2, padding=2, bias=(not batchnorm))
 
         # input: 8x40x40, output: 16x20x20
-        self.conv2 = nn.Conv2d(8, 16, kernel_size=5, stride=2, padding=2)
+        self.conv2 = nn.Conv2d(8, 16, kernel_size=5, stride=2, padding=2, bias=(not batchnorm))
 
         self._fc_in_size = 16 * 20 * 20
 

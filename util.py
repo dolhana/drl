@@ -67,20 +67,21 @@ class Policy():
         return self.pd(state).sample().detach().cpu().numpy()
 
     def log_prob(self, state, action):
-        action = torch.as_tensor(action).squeeze(-1)
+        action = torch.as_tensor(action, device=self.policy_network.device).squeeze(-1)
         return self.pd(state).log_prob(action).unsqueeze(-1)
 
     def pd(self, state):
-        state = torch.as_tensor(state, dtype=torch.float)
+        state = torch.as_tensor(state, dtype=torch.float, device=self.policy_network.device)
         logits = self.policy_network(state)
         return torch.distributions.Categorical(logits=logits)
 
 
 class PolicyNetwork(nn.Module):
-    def __init__(self, n_state_dims, n_action_dims, hidden_units=[16]):
+    def __init__(self, n_state_dims, n_action_dims, hidden_units=[16], device='cpu'):
         super(PolicyNetwork, self).__init__()
         self.n_state_dims = n_state_dims
         self.n_action_dims = n_action_dims
+        self.device = device
 
         hidden_layers = nn.ModuleList()
         input_units = self.n_state_dims
@@ -89,6 +90,8 @@ class PolicyNetwork(nn.Module):
             input_units = units
         self.hidden_layers = hidden_layers
         self.output_layer = nn.Linear(input_units, self.n_action_dims)
+
+        self.to(self.device)
 
     def forward(self, state):
         x = state

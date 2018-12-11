@@ -9,6 +9,7 @@ import util
 
 def train(run_one_episode: util.RunOneEpisodeFunc, policy_network: nn.Module, n_episodes=1, clip_epsilon=0.2, gamma=1., alpha=1e-3, weight_decay=1e-2, entropy_beta=1e-2, entropy_beta_discount_rate=0.995):
     policy = util.Policy(policy_network)
+    device = policy_network.device
     optim = torch.optim.Adam(policy_network.parameters(), lr=alpha, weight_decay=weight_decay)
 
     scores = []
@@ -37,14 +38,14 @@ def train(run_one_episode: util.RunOneEpisodeFunc, policy_network: nn.Module, n_
 
             # G for each time-step sums only the future rewards for credit assignment
             gs = (gammas * rewards[1:])[::-1].cumsum(axis=0)[::-1]
-            gs = torch.as_tensor(gs.copy(), dtype=torch.float)
+            gs = torch.as_tensor(gs.copy(), dtype=torch.float, device=device)
 
             # reward normalization
             gs_mean = gs.mean()
             gs_std = gs.std() + 1e-10
             gs_normalized = (gs - gs_mean) / gs_std
 
-            actions = torch.as_tensor(actions)
+            actions = torch.as_tensor(actions, device=device)
             old_probs = policy.pd(observations[:-1]).probs.gather(dim=1, index=actions[:-1]).detach()
 
             # PPO reuses the sample trajectory multiple times

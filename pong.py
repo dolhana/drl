@@ -12,8 +12,9 @@ class PolicyNetwork(nn.Module):
     """A policy network for PongDeterministic-v4
     """
 
-    def __init__(self):
+    def __init__(self, device=torch.device('cpu')):
         super(PolicyNetwork, self).__init__()
+        self.device = device
 
         # input: 80x80x2, output: 40x40x4
         self.conv1 = nn.Conv2d(2, 8, kernel_size=5, stride=2, padding=2)
@@ -25,6 +26,8 @@ class PolicyNetwork(nn.Module):
 
         self.fc1 = nn.Linear(self._fc_in_size, 256)
         self.fc2 = nn.Linear(256, 2)
+
+        self.to(self.device)
 
     def forward(self, x):
         x = F.relu(self.conv1(x))
